@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using Newtonsoft.Json;
+using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectInput;
 using SharpDX.Mathematics.Interop;
@@ -25,13 +26,7 @@ namespace Breakout
         Vector2 Size;
         Vector2 BoundaryCoordinates;
 
-        string[] Levels = new string[]
-        {
-            Path.GetFullPath("maps/testlevel.json"),
-            Path.GetFullPath("maps/testlevel2.json"),
-            Path.GetFullPath("maps/level1.json"),
-            Path.GetFullPath("maps/level2.json"),
-        };
+        private readonly string[] Levels;
 
         int CurrentLevel = 0;
         int Score = 0;
@@ -61,19 +56,22 @@ namespace Breakout
 
         public Game(int width, int height)
         {
+            using (Stream stream = File.OpenRead(Path.GetFullPath("maps/level-definition.json")))
+            using (StreamReader sr = new StreamReader(stream))
+                Levels = JsonConvert.DeserializeObject<string[]>(sr.ReadToEnd());
             BoundaryCoordinates = new Vector2(width, height);
             NextLevel();
 
             Bat = new Bat(width / 2f, height - 20, 400, Bat.Kinds.Regular);
         }
 
-        private List<Brick> LoadLevel(string path)
+        private List<Brick> LoadLevel(string levelName)
         {
             List<Brick> result = new List<Brick>();
             Brick.Kinds[,] kinds;
-            using (System.IO.Stream stream = System.IO.File.OpenRead(path))
-            using (System.IO.StreamReader sr = new System.IO.StreamReader(stream))
-                kinds = Newtonsoft.Json.JsonConvert.DeserializeObject<Brick.Kinds[,]>(sr.ReadToEnd());
+            using (Stream stream = File.OpenRead(Path.GetFullPath($"maps/{levelName}.json")))
+            using (StreamReader sr = new StreamReader(stream))
+                kinds = JsonConvert.DeserializeObject<Brick.Kinds[,]>(sr.ReadToEnd());
             for (int x = 0; x < kinds.GetLength(1); x++)
                 for (int y = 0; y < kinds.GetLength(0); y++)
                     if (kinds[y, x] != Brick.Kinds.None)
