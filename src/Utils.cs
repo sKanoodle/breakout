@@ -136,15 +136,7 @@ namespace Breakout
         {
             if (a == b)
                 return true;
-
-            double absA = Math.Abs(a);
-            double absB = Math.Abs(b);
-            double diff = Math.Abs(a - b);
-
-            if (a == 0 || b == 0 || diff < double.Epsilon)
-                return diff < epsilon;
-
-            return diff / (absA + absB) < epsilon;
+            return Math.Abs(a - b) < epsilon;
         }
 
         public static Vector2 Reflect(Vector2 vector, Vector2 reflector)
