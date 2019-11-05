@@ -14,26 +14,23 @@ namespace Breakout
 {
     class Game : IDisposable
     {
-        SolidColorBrush DebugBrush;
-        Random random = new Random();
-        DirectInput DirectInput;
-        Keyboard Keyboard;
-        Bitmap Tileset;
-        Color4 BackgroundColor;
+        private SolidColorBrush DebugBrush;
+        private DirectInput DirectInput;
+        private Keyboard Keyboard;
+        private Bitmap Tileset;
+        private Color4 BackgroundColor;
 
-        Ball Ball;
-        Bat Bat;
-        Vector2 Size;
-        Vector2 BoundaryCoordinates;
+        private Ball Ball;
+        private Bat Bat;
+        private Vector2 BoundaryCoordinates;
 
         private readonly string[] Levels;
 
-        int CurrentLevel = 0;
-        int Score = 0;
+        private int CurrentLevel = 0;
+        private int Score = 0;
+        private readonly float RandomBounceMarginPercentage = 2f;
 
-        float RandomBounceMarginPercentage = 2f;
-
-        private List<PowerUp> PowerUps = new List<PowerUp>();
+        private readonly List<PowerUp> PowerUps = new List<PowerUp>();
         private List<Brick> Bricks = new List<Brick>();
         private List<Tuple<LineSegment, Brick>> Boundaries
         {
@@ -164,9 +161,9 @@ namespace Breakout
                 Bat.Direction.X += +1;
 
             if (Bat.Kind == Bat.Kinds.Inverted)
-                Bat.Position = Bat.Position - Bat.Direction * Bat.Speed * elapsed;
+                Bat.Position -= Bat.Direction * Bat.Speed * elapsed;
             else
-                Bat.Position = Bat.Position + Bat.Direction * Bat.Speed * elapsed;
+                Bat.Position += Bat.Direction * Bat.Speed * elapsed;
 
             //CHEATMODE
             //Bat.Position.X = Ball.Position.X - random.NextFloat(0, Bat.Size.X);
@@ -195,9 +192,7 @@ namespace Breakout
         {
             if (PowerUps.Count > 0)
             {
-                PowerUp[] copy = new PowerUp[PowerUps.Count];
-                PowerUps.CopyTo(copy);
-                foreach (PowerUp powerUp in copy)
+                foreach (PowerUp powerUp in PowerUps.ToArray())
                 {
                     PowerUp.Kinds? kind = powerUp.Move(Bat, elapsed);
                     if (kind.HasValue == false)

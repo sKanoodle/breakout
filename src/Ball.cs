@@ -31,10 +31,8 @@ namespace Breakout
         }
 
         public Ball(float positionX, float positionY, float directionX, float directionY, float speed, float acceleration, Kinds kind)
+            : base(new Vector2(10, 10), new Vector2(directionX, directionY), new Vector2(positionX, positionY))
         {
-            Position = new Vector2(positionX, positionY);
-            Direction = new Vector2(directionX, directionY);
-            Size = new Vector2(10, 10);
             Speed = speed;
             Acceleration = acceleration;
             Kind = kind;

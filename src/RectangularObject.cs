@@ -16,6 +16,13 @@ namespace Breakout
         public Vector2 Direction;
         public Vector2 Position;
 
+        protected RectangularObject(Vector2 size, Vector2 direction, Vector2 position)
+        {
+            Size = size;
+            Direction = direction;
+            Position = position;
+        }
+
         public abstract RawRectangleF GetTileLocation();
 
         public RectangleF GetDrawDestination()

@@ -49,11 +49,9 @@ namespace Breakout
         }
 
         public Bat(float x, float y, float speed, Kinds kind)
+            : base(new Vector2(80, 15), default, new Vector2(x, y))
         {
-            Position = new Vector2(x, y);
-            Size = new Vector2(80, 15);
             Speed = speed;
-            Direction = Vector2.Zero;
             Kind = kind;
         }
 

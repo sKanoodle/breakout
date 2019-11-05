@@ -12,11 +12,11 @@ namespace Breakout
 {
     class PowerUp : RectangularObject
     {
-        private static Random _Random = new Random();
-        private float _FallSpeed = 50;
+        private static readonly Random Random = new Random();
+        private readonly float FallSpeed = 50;
         public Kinds Kind;
-        private List<PowerUp> _ListReference;
-        private static int[] _Weights = new int[]
+        private readonly List<PowerUp> ListReference;
+        private static readonly int[] Weights = new int[]
         {
             100,//BiggerBall,
             50, //SmallerBall,
@@ -33,32 +33,23 @@ namespace Breakout
         };
 
         public PowerUp(float x, float y, List<PowerUp> listReference)
-        {
-            Initialize(x, y, GetRandomKind(), listReference);
-        }
+            : this(x, y, GetRandomKind(), listReference) { }
 
         public PowerUp(float x, float y, Kinds kind, List<PowerUp> listReference)
+            : base(new Vector2(20, 20), new Vector2(0, 1), new Vector2(x, y))
         {
-            Initialize(x, y, kind, listReference);
-        }
-
-        private void Initialize(float x, float y, Kinds kind, List<PowerUp> listReference)
-        {
-            Size = new Vector2(20, 20);
-            Direction = new Vector2(0, 1);
-            Position = new Vector2(x, y);
             Kind = kind;
-            _ListReference = listReference;
+            ListReference = listReference;
         }
 
-        private Kinds GetRandomKind()
+        private static Kinds GetRandomKind()
         {
-            int sum = _Weights.Sum();
+            int sum = Weights.Sum();
             int index = 0;
-            double r = _Random.NextDouble();
-            while (index < _Weights.Length)
+            double r = Random.NextDouble();
+            while (index < Weights.Length)
             {
-                if (r > _Weights.Where((_, i) => i > index).Sum() / (float)sum)
+                if (r > Weights.Where((_, i) => i > index).Sum() / (float)sum)
                     return (Kinds)index;
                 index += 1;
             }
@@ -67,17 +58,17 @@ namespace Breakout
 
         public Kinds? Move(Bat bat, float elapsed)
         {
-            Position += Direction * _FallSpeed * elapsed;
+            Position += Direction * FallSpeed * elapsed;
             if (Position.Y > bat.Position.Y - Size.Y)
             {
                 if (Position.X > bat.Position.X - Size.X && Position.X < bat.Position.X + bat.Size.X)
                 {
-                    _ListReference.Remove(this);
+                    ListReference.Remove(this);
                     return Kind;
                 }
             }
             if (Position.Y > bat.Position.Y)
-                _ListReference.Remove(this);
+                ListReference.Remove(this);
             return null;
         }
 

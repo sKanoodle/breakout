@@ -12,14 +12,14 @@ namespace Breakout
 {
     class Brick : RectangularObject
     {
-        private static Random _Random = new Random();
-        public static int FullHP = 60;
+        private static readonly Random Random = new Random();
+        private const int FullHP = 60;
         public readonly Kinds Kind;
         public int Hitpoints = FullHP;
         public readonly int DamageOnHit;
-        private List<Brick> _ListReference;
-        private RawRectangleF _TileLocation;
-        private static int[] _Weights = new int[] 
+        private readonly List<Brick> ListReference;
+        private readonly RawRectangleF TileLocation;
+        private static readonly int[] Weights = new int[] 
         {
             100, //1hit
             20,  //2hit
@@ -33,15 +33,14 @@ namespace Breakout
         };
 
         public Brick(float x, float y, List<Brick> listReference, Kinds? kind = null)
+            : base(new Vector2(50, 20), default, new Vector2(x, y))
         {
             if (kind.HasValue)
                 Kind = kind.Value;
             else
                 Kind = GetRandomKind();
 
-            _ListReference = listReference;
-            Position = new Vector2(x, y);
-            Size = new Vector2(50, 20);
+            ListReference = listReference;
 
             DamageOnHit = FullHP / (1 + (int)Kind);
             if (Kind == Kinds.Indestructible)
@@ -49,17 +48,17 @@ namespace Breakout
             else if (Kind == Kinds.PowerUP)
                 DamageOnHit = FullHP;
 
-            _TileLocation = new RawRectangleF(1, 1 + 18 * (int)Kind, 33, 17 + 18 * (int)Kind);
+            TileLocation = new RawRectangleF(1, 1 + 18 * (int)Kind, 33, 17 + 18 * (int)Kind);
         }
 
         private Kinds GetRandomKind()
         {
-            int sum = _Weights.Sum();
+            int sum = Weights.Sum();
             int index = 0;
-            double r = _Random.NextDouble();
-            while (index < _Weights.Length)
+            double r = Random.NextDouble();
+            while (index < Weights.Length)
             {
-                if (r > _Weights.Where((_, i) => i > index).Sum() / (float)sum)
+                if (r > Weights.Where((_, i) => i > index).Sum() / (float)sum)
                     return (Kinds)index;
                 index += 1;
             }
@@ -72,7 +71,7 @@ namespace Breakout
             Hitpoints -= DamageOnHit;
             if (Hitpoints <= 0 || isLavaBall)
             {
-                _ListReference.Remove(this);
+                ListReference.Remove(this);
                 if (Kind == Kinds.PowerUP)
                     dropPowerUp = true;
                 return true;
@@ -82,25 +81,21 @@ namespace Breakout
 
         public new void Render(RenderTarget render, Bitmap Tileset)
         {
-            render.DrawBitmap(Tileset, GetDrawDestination(), 1, BitmapInterpolationMode.Linear, _TileLocation);
-            int decayState = -1;
-            if (Hitpoints == FullHP)
-                decayState = 0;
-            else if (Hitpoints > FullHP * 0.8)
-                decayState = 1;
-            else if (Hitpoints > FullHP * 0.4)
-                decayState = 2;
-            else if (Hitpoints > 0)
-                decayState = 3;
-            else
-                throw new Exception();
+            render.DrawBitmap(Tileset, GetDrawDestination(), 1, BitmapInterpolationMode.Linear, TileLocation);
+            int decayState = Hitpoints switch
+            {
+                FullHP => 0,
+                _ when Hitpoints > FullHP * 0.8 => 1,
+                _ when Hitpoints > FullHP * 0.4 => 2,
+                _ => 3,
+            };
 
             render.DrawBitmap(Tileset, GetDrawDestination(), 1, BitmapInterpolationMode.Linear, new RawRectangleF(186 + 34 * decayState, 92, 218 + 34 * decayState, 108));
         }
 
         public override RawRectangleF GetTileLocation()
         {
-            return _TileLocation;
+            return TileLocation;
         }
 
         //TODO: find a different way to pass the brick to delete
